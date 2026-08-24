@@ -12,9 +12,9 @@
     <meta name="apple-mobile-web-app-title" content="ASCENT" />
     <meta name="theme-color" content="#1a0f08" />
     <meta name="screen-orientation" content="landscape" />
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/icon-180.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./favicon.svg" />
+    <link rel="apple-touch-icon" href="./icon-180.png" />
     <title>ASCENT — Der Turm</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -29,10 +29,11 @@
       <div class="boot-mark">A</div>
       <h1>ASCENT</h1>
       <p class="desk-lead">Das ist ein <b>Handyspiel</b> — Querformat, Touch, Vollbild.</p>
-      <ol>
+      <ol id="desk-local">
         <li>Handy und Rechner ins <b>gleiche WLAN</b></li>
         <li>Diese Adresse im Handy-Browser öffnen:</li>
       </ol>
+      <p id="desk-hosted" class="hidden">Diese Seite ist online. Öffne die Adresse auf dem Handy:</p>
       <code id="lan-url">http://DEIN-RECHNER:5173</code>
       <p class="desk-steps">
         <b>iPhone:</b> Teilen → Zum Home-Bildschirm<br />

@@ -15,7 +15,15 @@ document.addEventListener(
 const lan = document.getElementById("lan-url");
 if (lan) {
   const local = location.hostname === "localhost" || location.hostname === "127.0.0.1";
-  lan.textContent = local && __LAN_URL__ ? __LAN_URL__ : location.origin;
+  const playUrl = location.href.split("#")[0].replace(/index\.html$/, "");
+  lan.textContent = local && __LAN_URL__ ? __LAN_URL__ : playUrl;
+  document.getElementById("desk-local")?.classList.toggle("hidden", !local);
+  document.getElementById("desk-hosted")?.classList.toggle("hidden", local);
+}
+
+if ("serviceWorker" in navigator) {
+  const sw = new URL("sw.js", document.baseURI).pathname;
+  navigator.serviceWorker.register(sw).catch(() => {});
 }
 
 async function lockLandscape() {
@@ -48,10 +56,6 @@ const standalone = window.matchMedia("(display-mode: standalone)").matches || na
 if (ios && !standalone) {
   const hint = document.getElementById("touch-hint");
   if (hint) hint.textContent = "Teilen → Zum Home-Bildschirm · dann quer spielen";
-}
-
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
 
 new Game();

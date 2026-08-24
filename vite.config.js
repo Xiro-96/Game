@@ -14,6 +14,7 @@ function lanAddress() {
 const lan = lanAddress();
 
 export default defineConfig({
+  base: "./",
   define: {
     __LAN_URL__: JSON.stringify(lan ? `http://${lan}:5173` : ""),
   },
