@@ -141,7 +141,7 @@ export class Combat {
       this.spawnEnemy("archer", 5, 8, diff);
       return;
     }
-    const n = this.floorType === "survival" ? 4 : 5 + this.wave * 2;
+    const n = this.floorType === "survival" ? 3 : 4 + this.wave * 2;
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2 + Math.random() * 0.2;
       const r = 8 + Math.random() * 4;
@@ -193,7 +193,12 @@ export class Combat {
     }
 
     this.updatePlayer(this.player, dt, input);
-    for (const h of this.heroes) if (!h.isPlayer && !h.dead) this.updateAlly(h, dt);
+    for (const h of this.heroes) {
+      if (!h.dead && h.stats) {
+        h.stats.hp = Math.min(h.stats.maxHp, h.stats.hp + h.stats.maxHp * 0.012 * dt);
+      }
+      if (!h.isPlayer && !h.dead) this.updateAlly(h, dt);
+    }
     for (const e of this.enemies) if (!e.dead) this.updateEnemy(e, dt);
     this.updateProjectiles(dt);
     this.updateFx(dt);
@@ -274,10 +279,10 @@ export class Combat {
         clampArena(h.pos);
         moving = true;
       } else {
-        h.lightCd -= dt;
-        if (h.lightCd <= 0) this.doLight(h);
-        h.skillCd -= dt;
-        if (h.skillCd <= 0 && Math.random() < 0.01) this.doSkill(h);
+            h.lightCd -= dt;
+            if (h.lightCd <= 0) this.doLight(h);
+            h.skillCd -= dt;
+            if (h.skillCd <= 0 && Math.random() < 0.04) this.doSkill(h);
       }
     }
     h.atkT = Math.max(0, h.atkT - dt);
@@ -518,7 +523,10 @@ export class Combat {
     if (target.dead || target.invuln > 0) return;
     const crit = source && Math.random() < (source.stats?.crit || 0);
     let dealt = dmg * (crit ? 2 : 1);
-    if (target.stats) dealt *= target.stats.armor;
+    if (target.stats) {
+      dealt *= target.stats.armor;
+      target.invuln = 0.45;
+    }
     const pool = this.hpPool(target);
     pool.hp -= dealt;
     if (from) {

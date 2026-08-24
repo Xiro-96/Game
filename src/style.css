@@ -851,16 +851,14 @@ body {
   inset: 0;
   z-index: 50;
   background: #120804;
-  display: grid;
+  display: none;
   place-items: center;
   text-align: center;
   font-size: 22px;
 }
 
-@media (orientation: portrait) and (max-width: 900px) {
-  #rotate {
-    display: grid !important;
-  }
+@media (orientation: portrait) and (hover: none) and (max-width: 900px) {
+  #rotate,
   #rotate.hidden {
     display: grid !important;
   }

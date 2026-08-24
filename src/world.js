@@ -1,8 +1,37 @@
 import * as THREE from "three";
 import { mat } from "./characters.js";
 
+function noiseTex(w, colors) {
+  const c = document.createElement("canvas");
+  c.width = c.height = w;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = colors[0];
+  ctx.fillRect(0, 0, w, w);
+  for (let i = 0; i < w * 12; i++) {
+    ctx.fillStyle = colors[1 + (i % (colors.length - 1))];
+    ctx.globalAlpha = 0.35 + Math.random() * 0.4;
+    ctx.fillRect(Math.random() * w, Math.random() * w, 2 + Math.random() * 5, 2 + Math.random() * 8);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function grassMat() {
+  const tex = noiseTex(256, ["#3d9440", "#5aaa3a", "#2f7a32", "#6bbb44", "#4e9a34"]);
+  tex.repeat.set(10, 10);
+  return new THREE.MeshLambertMaterial({ map: tex, color: "#c8f0a8" });
+}
+
+function stoneMat(hex = "#8a846c") {
+  const tex = noiseTex(128, ["#6a6358", "#8a846c", "#5a5348", "#9a9480"]);
+  tex.repeat.set(2, 2);
+  return new THREE.MeshLambertMaterial({ map: tex, color: hex });
+}
+
 function mesh(geo, color, x, y, z, rx = 0, ry = 0, rz = 0, sx = 1, sy = 1, sz = 1) {
-  const m = new THREE.Mesh(geo, mat(color));
+  const m = new THREE.Mesh(geo, typeof color === "string" ? mat(color) : color);
   m.position.set(x, y, z);
   m.rotation.set(rx, ry, rz);
   m.scale.set(sx, sy, sz);
@@ -35,7 +64,7 @@ export function createHubWorld() {
   scene.fog = new THREE.Fog("#9ad4ff", 28, 90);
   createLights(scene, true);
 
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(80, 48), mat("#5aaa3a"));
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(80, 48), grassMat());
   ground.rotation.x = -Math.PI / 2;
   ground.receiveShadow = true;
   scene.add(ground);
@@ -75,9 +104,11 @@ export function createHubWorld() {
 function makeHouse() {
   const g = new THREE.Group();
   const c = ["#c45a3a", "#d48a3a", "#e8dcc8", "#6b8cae"][Math.floor(Math.random() * 4)];
-  g.add(mesh(new THREE.BoxGeometry(2.2, 1.6, 2.2), c, 0, 0.8, 0));
-  g.add(mesh(new THREE.ConeGeometry(1.7, 1.3, 4), "#8a3a28", 0, 2.05, 0, 0, Math.PI / 4));
-  g.add(mesh(new THREE.BoxGeometry(0.4, 0.7, 0.12), "#5a3a18", 0, 0.45, 1.12));
+  g.add(mesh(new THREE.BoxGeometry(2.4, 1.7, 2.4), c, 0, 0.85, 0));
+  g.add(mesh(new THREE.ConeGeometry(1.9, 1.45, 4), "#8a3a28", 0, 2.2, 0, 0, Math.PI / 4));
+  g.add(mesh(new THREE.BoxGeometry(0.42, 0.78, 0.12), "#5a3a18", 0, 0.5, 1.22));
+  g.add(mesh(new THREE.BoxGeometry(0.38, 0.38, 0.08), "#ffe98a", 0.55, 1.15, 1.22));
+  g.add(mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.7, 8), "#6b3d18", 0.85, 2.55, 0.2));
   return g;
 }
 
@@ -140,12 +171,19 @@ export function createArena(themeId) {
   scene.fog = new THREE.Fog(t.fog, 22, 48);
   createLights(scene, themeId !== "night" && themeId !== "dungeon" && themeId !== "magma");
 
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(16, 48), mat(t.ground));
+  const groundMat =
+    themeId === "meadow"
+      ? grassMat()
+      : new THREE.MeshLambertMaterial({
+          map: noiseTex(256, [t.ground, t.rim, t.accent, t.wall]),
+          color: t.ground,
+        });
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(16, 48), groundMat);
   ground.rotation.x = -Math.PI / 2;
   ground.receiveShadow = true;
   scene.add(ground);
 
-  const ring = new THREE.Mesh(new THREE.RingGeometry(15.2, 16.4, 48), mat(t.rim));
+  const ring = new THREE.Mesh(new THREE.RingGeometry(15.2, 16.4, 48), stoneMat(t.rim));
   ring.rotation.x = -Math.PI / 2;
   ring.position.y = 0.02;
   ring.receiveShadow = true;
@@ -153,10 +191,10 @@ export function createArena(themeId) {
 
   for (let i = 0; i < 20; i++) {
     const a = (i / 20) * Math.PI * 2;
-    const wall = mesh(new THREE.BoxGeometry(5.2, 2.4, 1.1), t.wall, Math.cos(a) * 16.2, 1.2, Math.sin(a) * 16.2, 0, -a);
+    const wall = mesh(new THREE.BoxGeometry(5.2, 2.6, 1.2), stoneMat(t.wall), Math.cos(a) * 16.2, 1.3, Math.sin(a) * 16.2, 0, -a);
     scene.add(wall);
     if (i % 2 === 0) {
-      const batt = mesh(new THREE.BoxGeometry(1.4, 0.8, 1.2), t.wall, Math.cos(a) * 16.2, 2.8, Math.sin(a) * 16.2);
+      const batt = mesh(new THREE.BoxGeometry(1.5, 0.9, 1.3), stoneMat(t.wall), Math.cos(a) * 16.2, 3.0, Math.sin(a) * 16.2);
       scene.add(batt);
     }
   }

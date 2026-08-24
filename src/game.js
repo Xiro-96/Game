@@ -385,13 +385,13 @@ export class Game {
       const sh = this.combat.shake;
       const ox = (Math.random() - 0.5) * sh * 0.6;
       const oz = (Math.random() - 0.5) * sh * 0.6;
-      this.combatCam.position.set(p.x + ox, 16.5, p.z + 13.5 + oz);
-      this.combatCam.lookAt(p.x, 0.6, p.z);
+      this.combatCam.position.set(p.x + ox, 12.8, p.z + 11.2 + oz);
+      this.combatCam.lookAt(p.x, 0.9, p.z);
       this.renderer.render(this.combat.scene, this.combatCam);
     } else {
       this.hubT += dt;
-      this.hubCam.position.set(Math.sin(this.hubT * 0.12) * 4 - 2, 7.2, 14.5);
-      this.hubCam.lookAt(-1, 3.5, -4);
+      this.hubCam.position.set(Math.sin(this.hubT * 0.12) * 2.4 + 1.2, 6.6, 12.8);
+      this.hubCam.lookAt(-1.4, 2.2, 1.2);
       if (this.heroPreview) this.heroPreview.rotation.y = Math.sin(this.hubT * 0.8) * 0.25 + 0.4;
       this.renderer.render(this.hubScene, this.hubCam);
     }
