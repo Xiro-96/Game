@@ -10,17 +10,21 @@ export class Joystick {
     this.keys = { w: false, a: false, s: false, d: false };
     this.enabled = false;
 
+    const appBox = () => document.getElementById("app").getBoundingClientRect();
+
     const start = (e) => {
       if (!this.enabled) return;
       const t = e.changedTouches ? e.changedTouches[0] : e;
-      if (t.clientX > window.innerWidth * 0.46) return;
+      const app = appBox();
+      if (t.clientX < app.left || t.clientY < app.top || t.clientY > app.bottom) return;
+      if (t.clientX > app.left + app.width * 0.46) return;
       this.active = true;
       this.id = t.identifier ?? "mouse";
       const r = this.root.getBoundingClientRect();
       this.origin.x = t.clientX;
       this.origin.y = t.clientY;
-      this.root.style.left = `${t.clientX - r.width / 2}px`;
-      this.root.style.bottom = `${window.innerHeight - t.clientY - r.height / 2}px`;
+      this.root.style.left = `${t.clientX - app.left - r.width / 2}px`;
+      this.root.style.bottom = `${app.bottom - t.clientY - r.height / 2}px`;
       this.move(t);
     };
     const move = (e) => {

@@ -40,7 +40,7 @@ export class Game {
       alpha: false,
     });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    this.renderer.setSize(innerWidth, innerHeight);
+    this.renderer.setSize(innerWidth, innerHeight, false);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -63,6 +63,7 @@ export class Game {
     this.bindUi();
     this.refreshTop();
     window.addEventListener("resize", () => this.resize());
+    new ResizeObserver(() => this.resize()).observe(document.getElementById("app"));
     this.resize();
     this.loop();
     setTimeout(() => this.showTitle(), 1500);
@@ -73,9 +74,10 @@ export class Game {
   }
 
   resize() {
-    const w = innerWidth;
-    const h = innerHeight;
-    this.renderer.setSize(w, h);
+    const app = document.getElementById("app");
+    const w = Math.max(1, app.clientWidth);
+    const h = Math.max(1, app.clientHeight);
+    this.renderer.setSize(w, h, false);
     this.hubCam.aspect = w / h;
     this.hubCam.updateProjectionMatrix();
     this.combatCam.aspect = w / h;
