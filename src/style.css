@@ -425,6 +425,14 @@ body {
   color: var(--gold-hi);
 }
 
+.hero-preview,
+.hero-card,
+.path-card,
+.perk-card,
+.panel {
+  color: var(--cream);
+}
+
 .hero-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -482,11 +490,17 @@ body {
 .perk-card {
   border: 4px solid #3a1d0a;
   border-radius: 18px;
-  background: linear-gradient(#2a160c, #140804);
+  background: linear-gradient(#3a2414, #1a0c06);
   padding: 14px 12px;
   cursor: pointer;
   text-align: center;
   min-height: 170px;
+  color: var(--cream);
+}
+
+.perk-card h3,
+.path-card h3 {
+  color: var(--gold-hi);
 }
 
 .path-card.selected,
