@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ASCENT" />
+    <meta name="theme-color" content="#1a0f08" />
+    <meta name="screen-orientation" content="landscape" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./favicon.svg" />
+    <link rel="apple-touch-icon" href="./icon-180.png" />
+    <title>ASCENT — Der Turm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <aside id="desk-note">
+      <div class="boot-mark">A</div>
+      <h1>ASCENT</h1>
+      <p class="desk-lead">Das ist ein <b>Handyspiel</b> — Querformat, Touch, Vollbild.</p>
+      <ol id="desk-local">
+        <li>Handy und Rechner ins <b>gleiche WLAN</b></li>
+        <li>Diese Adresse im Handy-Browser öffnen:</li>
+      </ol>
+      <p id="desk-hosted" class="hidden">Diese Seite ist online. Öffne die Adresse auf dem Handy:</p>
+      <code id="lan-url">http://DEIN-RECHNER:5173</code>
+      <p class="desk-steps">
+        <b>iPhone:</b> Teilen → Zum Home-Bildschirm<br />
+        <b>Android:</b> Menü → App installieren / Zum Startbildschirm
+      </p>
+      <p class="desk-sub">Danach startet ASCENT wie Clash: Icon, kein Browser, Joystick links, Angriffe rechts.</p>
+    </aside>
+
+    <div id="phone">
+      <div id="phone-bezel">
+        <div id="app">
+          <canvas id="scene"></canvas>
+          <div id="vignette"></div>
+
+          <div id="boot" class="screen">
+            <div class="boot-mark">A</div>
+            <div class="boot-title">ASCENT</div>
+            <div class="boot-sub">DER TURM ERWACHT</div>
+            <div class="boot-bar"><div class="boot-fill"></div></div>
+          </div>
+
+          <div id="title" class="screen hidden">
+            <div class="title-sky"></div>
+            <div class="title-stack">
+              <div class="beta-chip">CLOSED PLAYTEST</div>
+              <h1 class="logo">ASCENT</h1>
+              <p class="tagline">Steig mit deinem Trupp den Turm hinauf</p>
+              <button class="btn-gold xl" id="btn-play">SPIELEN</button>
+              <button class="btn-install hidden" id="btn-install" type="button">AUF DEN HOME-BILDSCHIRM</button>
+              <p class="hint" id="touch-hint">Joystick links · Angriffe rechts · Handy quer halten</p>
+            </div>
+          </div>
+
+          <div id="hub" class="screen hidden">
+            <div class="topbar">
+              <div class="res gold"><span class="ico">⬤</span><b id="res-gold">0</b></div>
+              <div class="res elixir"><span class="ico">◆</span><b id="res-elixir">0</b></div>
+              <div class="res gems"><span class="ico">✦</span><b id="res-gems">0</b></div>
+            </div>
+            <div class="hub-center">
+              <div class="tower-badge">
+                <div class="tb-floor">HÖCHSTER TURM</div>
+                <div class="tb-num" id="best-floor">0</div>
+              </div>
+            </div>
+            <div class="dock">
+              <button class="dock-btn" id="btn-shop" type="button">
+                <span>🏪</span>Shop
+              </button>
+              <button class="dock-btn" id="btn-heroes" type="button">
+                <span>🛡️</span>Helden
+              </button>
+              <button class="btn-gold play" id="btn-climb" type="button">STEIGEN</button>
+              <button class="dock-btn" id="btn-squad" type="button">
+                <span>👥</span>Trupp
+              </button>
+              <button class="dock-btn" id="btn-profile" type="button">
+                <span>🏅</span>Ruhm
+              </button>
+            </div>
+          </div>
+
+          <div id="hero-select" class="screen hidden overlay">
+            <div class="panel wide">
+              <div class="panel-head">
+                <button class="btn-icon" id="hero-back" type="button">‹</button>
+                <h2>WÄHLE DEINEN HELDEN</h2>
+                <div class="spacer"></div>
+              </div>
+              <div class="hero-layout">
+                <div class="hero-preview" id="hero-preview-label">
+                  <div class="hero-name" id="hero-name">Berserker</div>
+                  <div class="hero-role" id="hero-role">Nahkampf · Durchbruch</div>
+                  <p class="hero-blurb" id="hero-blurb"></p>
+                  <div class="kit">
+                    <div><b>LEICHT</b><span id="kit-light"></span></div>
+                    <div><b>SCHWER</b><span id="kit-heavy"></span></div>
+                    <div><b>SKILL</b><span id="kit-skill"></span></div>
+                  </div>
+                </div>
+                <div class="hero-grid" id="hero-grid"></div>
+              </div>
+              <button class="btn-gold xl" id="hero-confirm" type="button">WEITER</button>
+            </div>
+          </div>
+
+          <div id="path-select" class="screen hidden overlay">
+            <div class="panel wide">
+              <div class="panel-head">
+                <button class="btn-icon" id="path-back" type="button">‹</button>
+                <h2>WÄHLE DEINEN PFAD</h2>
+                <div class="spacer"></div>
+              </div>
+              <p class="path-intro">Feste Routen. Klare Session. Dein Trupp bleibt zusammen.</p>
+              <div class="path-row" id="path-row"></div>
+              <button class="btn-gold xl" id="path-confirm" type="button">TURM BESTEIGEN</button>
+            </div>
+          </div>
+
+          <div id="hud" class="hidden">
+            <div class="hud-top">
+              <div class="squad" id="squad"></div>
+              <div class="floor-pill">
+                <div class="fp-path" id="hud-path">MUTIG</div>
+                <div class="fp-floor" id="hud-floor">ETAGE 1</div>
+                <div class="fp-obj" id="hud-obj">Besiege alle Wellen</div>
+              </div>
+              <div class="minimap" id="minimap"></div>
+            </div>
+            <div class="banner hidden" id="banner"></div>
+            <div class="wavebar hidden" id="wavebar"><div id="wavefill"></div></div>
+            <div class="joystick" id="joystick">
+              <div class="joy-base" id="joy-base">
+                <div class="joy-knob" id="joy-knob"></div>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="act skill" id="btn-skill" type="button">
+                <span class="cd" id="skill-cd"></span>
+                <b id="skill-icon">✦</b>
+                <small>SKILL</small>
+              </button>
+              <button class="act heavy" id="btn-heavy" type="button">
+                <svg class="charge-ring" viewBox="0 0 100 100">
+                  <circle class="track" cx="50" cy="50" r="42" />
+                  <circle class="meter" id="heavy-meter" cx="50" cy="50" r="42" />
+                  <circle class="perfect" id="perfect-ring" cx="50" cy="50" r="42" />
+                </svg>
+                <b>⚔</b>
+                <small>SCHWER</small>
+              </button>
+              <button class="act light" id="btn-light" type="button">
+                <b>●</b>
+                <small>LEICHT</small>
+              </button>
+            </div>
+            <button class="pause-btn" id="btn-pause" type="button">II</button>
+          </div>
+
+          <div id="perk" class="screen hidden overlay">
+            <div class="panel">
+              <h2>AUFSTIEG</h2>
+              <p class="path-intro">Wähle eine Verstärkung für diesen Run</p>
+              <div class="perk-row" id="perk-row"></div>
+            </div>
+          </div>
+
+          <div id="pause" class="screen hidden overlay">
+            <div class="panel slim">
+              <h2>PAUSE</h2>
+              <button class="btn-gold" id="btn-resume" type="button">WEITERSPIELEN</button>
+              <button class="btn-wood" id="btn-quit" type="button">RUN AUFGEBEN</button>
+            </div>
+          </div>
+
+          <div id="results" class="screen hidden overlay">
+            <div class="panel slim">
+              <div class="result-stamp" id="result-stamp">SIEG</div>
+              <h2 id="result-title">Turm bezwungen</h2>
+              <div class="stats" id="result-stats"></div>
+              <button class="btn-gold xl" id="btn-home" type="button">ZURÜCK ZUM LAGER</button>
+            </div>
+          </div>
+
+          <div id="toast" class="hidden"></div>
+          <div id="rotate">
+            <div>📱</div>
+            <p>Dreh dein Handy ins Querformat</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
