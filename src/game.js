@@ -63,6 +63,7 @@ export class Game {
     this.bindUi();
     this.refreshTop();
     window.addEventListener("resize", () => this.resize());
+    window.visualViewport?.addEventListener("resize", () => this.resize());
     new ResizeObserver(() => this.resize()).observe(document.getElementById("app"));
     this.resize();
     this.loop();

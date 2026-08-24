@@ -12,6 +12,29 @@ document.addEventListener(
   { passive: false }
 );
 
+function layoutShell() {
+  const vv = window.visualViewport;
+  const w = Math.round(vv?.width || window.innerWidth);
+  const h = Math.round(vv?.height || window.innerHeight);
+  const root = document.documentElement;
+  root.style.setProperty("--vvw", `${w}px`);
+  root.style.setProperty("--vvh", `${h}px`);
+  root.style.setProperty("--vvx", `${Math.round(vv?.offsetLeft || 0)}px`);
+  root.style.setProperty("--vvy", `${Math.round(vv?.offsetTop || 0)}px`);
+
+  const touch = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
+  const desk = !touch && w >= 900 && h >= 560;
+  document.body.classList.toggle("mode-desk", desk);
+  document.getElementById("rotate")?.classList.toggle("show", touch && h > w + 24);
+}
+
+layoutShell();
+window.addEventListener("resize", layoutShell);
+window.visualViewport?.addEventListener("resize", layoutShell);
+window.visualViewport?.addEventListener("scroll", layoutShell);
+window.addEventListener("orientationchange", () => setTimeout(layoutShell, 120));
+
+
 const lan = document.getElementById("lan-url");
 if (lan) {
   const local = location.hostname === "localhost" || location.hostname === "127.0.0.1";
