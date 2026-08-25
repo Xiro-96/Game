@@ -46,6 +46,7 @@ export class Game {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.12;
+    this.watchContext();
 
     this.hubScene = createHubWorld();
     this.hubCam = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 120);
@@ -68,6 +69,24 @@ export class Game {
     this.resize();
     this.loop();
     setTimeout(() => this.showTitle(), 1500);
+  }
+
+  // Ein verlorener WebGL-Context liefert sonst nur eine leere Canvas - das
+  // HUD laeuft weiter, das Bild bleibt weg, ohne jeden Hinweis.
+  watchContext() {
+    const canvas = this.renderer.domElement;
+    canvas.addEventListener("webglcontextlost", (e) => {
+      e.preventDefault();
+      this.contextLost = true;
+      const el = document.getElementById("gl-lost");
+      if (el) el.classList.remove("hidden");
+    });
+    canvas.addEventListener("webglcontextrestored", () => {
+      this.contextLost = false;
+      const el = document.getElementById("gl-lost");
+      if (el) el.classList.add("hidden");
+      this.resize();
+    });
   }
 
   persist() {
@@ -382,6 +401,7 @@ export class Game {
   loop() {
     requestAnimationFrame(() => this.loop());
     const dt = Math.min(0.033, this.clock.getDelta());
+    if (this.contextLost) return;
     if (this.mode === "combat" && this.combat.scene) {
       this.combat.update(dt, this.input);
       const p = this.combat.player.pos;
