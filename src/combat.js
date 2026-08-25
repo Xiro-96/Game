@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { HEROES, ENEMY_KINDS, PERKS, floorPlan } from "./data.js";
 import { createCharacter, animateCharacter, createProjectile, hpBar } from "./characters.js";
-import { createArena, themeFor, makeTelegraph, makeBurst } from "./world.js";
+import { createArena, themeFor, makeTelegraph, makeBurst, disposeScene } from "./world.js";
 
 const ARENA = 14.2;
 
@@ -647,10 +647,7 @@ export class Combat {
   clearScene() {
     for (const f of this.floats) f.el.remove();
     this.floats = [];
-    if (this.scene) {
-      this.scene.traverse((o) => {
-        if (o.geometry) o.geometry.dispose?.();
-      });
-    }
+    disposeScene(this.scene);
+    this.scene = null;
   }
 }

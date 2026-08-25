@@ -1018,3 +1018,32 @@ body.mode-desk #phone-bezel {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+#gl-lost {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 6, 2, 0.88);
+  text-align: center;
+  padding: 20px;
+}
+
+#gl-lost.hidden {
+  display: none;
+}
+
+#gl-lost b {
+  font-family: "Lilita One", cursive;
+  font-size: 22px;
+  color: var(--gold-hi);
+  letter-spacing: 0.08em;
+}
+
+#gl-lost p {
+  font-size: 15px;
+  margin: 8px 0 14px;
+  opacity: 0.9;
+}

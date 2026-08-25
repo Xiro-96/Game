@@ -1,7 +1,18 @@
 import * as THREE from "three";
 import { mat } from "./characters.js";
 
-function noiseTex(w, colors) {
+// Gecachte GPU-Ressourcen. Arenen werden pro Etage neu gebaut; ohne Cache
+// landete pro Arena ein frischer Satz CanvasTexturen auf der GPU, der nie
+// wieder freigegeben wurde.
+const shared = new Set();
+const texCache = new Map();
+const matCache = new Map();
+
+function noiseTex(w, colors, rx = 1, ry = 1) {
+  const key = `${w}|${colors.join(",")}|${rx}x${ry}`;
+  const cached = texCache.get(key);
+  if (cached) return cached;
+
   const c = document.createElement("canvas");
   c.width = c.height = w;
   const ctx = c.getContext("2d");
@@ -15,19 +26,67 @@ function noiseTex(w, colors) {
   const tex = new THREE.CanvasTexture(c);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.colorSpace = THREE.SRGBColorSpace;
+  tex.repeat.set(rx, ry);
+  texCache.set(key, tex);
+  shared.add(tex);
   return tex;
 }
 
+function sharedMat(key, make) {
+  const cached = matCache.get(key);
+  if (cached) return cached;
+  const m = make();
+  matCache.set(key, m);
+  shared.add(m);
+  return m;
+}
+
 function grassMat() {
-  const tex = noiseTex(256, ["#3d9440", "#5aaa3a", "#2f7a32", "#6bbb44", "#4e9a34"]);
-  tex.repeat.set(10, 10);
-  return new THREE.MeshLambertMaterial({ map: tex, color: "#c8f0a8" });
+  return sharedMat("grass", () =>
+    new THREE.MeshLambertMaterial({
+      map: noiseTex(256, ["#3d9440", "#5aaa3a", "#2f7a32", "#6bbb44", "#4e9a34"], 10, 10),
+      color: "#c8f0a8",
+    })
+  );
 }
 
 function stoneMat(hex = "#8a846c") {
-  const tex = noiseTex(128, ["#6a6358", "#8a846c", "#5a5348", "#9a9480"]);
-  tex.repeat.set(2, 2);
-  return new THREE.MeshLambertMaterial({ map: tex, color: hex });
+  return sharedMat(`stone:${hex}`, () =>
+    new THREE.MeshLambertMaterial({
+      map: noiseTex(128, ["#6a6358", "#8a846c", "#5a5348", "#9a9480"], 2, 2),
+      color: hex,
+    })
+  );
+}
+
+function groundMatFor(themeId, t) {
+  if (themeId === "meadow") return grassMat();
+  return sharedMat(`ground:${themeId}`, () =>
+    new THREE.MeshLambertMaterial({
+      map: noiseTex(256, [t.ground, t.rim, t.accent, t.wall]),
+      color: t.ground,
+    })
+  );
+}
+
+// Gibt alles frei, was diese Szene exklusiv besitzt. Gecachte Ressourcen
+// bleiben bestehen - sie werden von der naechsten Arena wiederverwendet.
+export function disposeScene(scene) {
+  if (!scene) return;
+  scene.traverse((o) => {
+    if (o.isLight) o.shadow?.dispose?.();
+    if (o.geometry) o.geometry.dispose?.();
+    const mats = Array.isArray(o.material) ? o.material : o.material ? [o.material] : [];
+    for (const m of mats) {
+      if (shared.has(m)) continue;
+      for (const key of ["map", "gradientMap", "alphaMap", "emissiveMap"]) {
+        const tex = m[key];
+        if (tex && !shared.has(tex)) tex.dispose?.();
+      }
+      m.dispose?.();
+    }
+  });
+  scene.clear?.();
 }
 
 function mesh(geo, color, x, y, z, rx = 0, ry = 0, rz = 0, sx = 1, sy = 1, sz = 1) {
@@ -171,14 +230,7 @@ export function createArena(themeId) {
   scene.fog = new THREE.Fog(t.fog, 22, 48);
   createLights(scene, themeId !== "night" && themeId !== "dungeon" && themeId !== "magma");
 
-  const groundMat =
-    themeId === "meadow"
-      ? grassMat()
-      : new THREE.MeshLambertMaterial({
-          map: noiseTex(256, [t.ground, t.rim, t.accent, t.wall]),
-          color: t.ground,
-        });
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(16, 48), groundMat);
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(16, 48), groundMatFor(themeId, t));
   ground.rotation.x = -Math.PI / 2;
   ground.receiveShadow = true;
   scene.add(ground);
