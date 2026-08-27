@@ -23,6 +23,36 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/src/style.css" />
+    <script>
+      // Laeuft bewusst inline und ohne Modul: greift auch dann, wenn das
+      // Bundle selbst nicht ankommt und sonst nur der Boot-Screen stehenbliebe.
+      window.__ascentFatal = function (title, msg) {
+        var el = document.getElementById("fatal");
+        if (!el) return;
+        document.getElementById("fatal-title").textContent = title;
+        document.getElementById("fatal-msg").textContent = msg;
+        el.classList.remove("hidden");
+      };
+      // Der echte Fehlertext ist das Wertvolle - ohne ihn bleibt jede Stoerung
+      // auf dem Geraet ein stummer Boot-Screen.
+      window.addEventListener("error", function (e) {
+        if (window.__ascentBooted) return;
+        var src = e.target && e.target.src;
+        if (src) return window.__ascentFatal("Datei fehlt", "Konnte nicht laden: " + src);
+        window.__ascentFatal("Fehler beim Start", (e.message || "unbekannt") + " @ " + (e.filename || "?") + ":" + (e.lineno || 0));
+      }, true);
+      window.addEventListener("unhandledrejection", function (e) {
+        if (window.__ascentBooted) return;
+        window.__ascentFatal("Fehler beim Start", String((e.reason && e.reason.message) || e.reason));
+      });
+      setTimeout(function () {
+        if (window.__ascentBooted) return;
+        window.__ascentFatal(
+          "Laden haengt",
+          "Das Spiel wurde nicht fertig geladen (keine Fehlermeldung). Verbindung pruefen und neu laden."
+        );
+      }, 12000);
+    </script>
   </head>
   <body>
     <aside id="desk-note">
@@ -198,10 +228,10 @@
             </div>
           </div>
 
-          <div id="gl-lost" class="hidden">
+          <div id="fatal" class="hidden">
             <div>
-              <b>Grafik neu laden</b>
-              <p>Der Grafikspeicher ist ausgegangen. Lade die Seite neu.</p>
+              <b id="fatal-title">Neu laden</b>
+              <p id="fatal-msg"></p>
               <button class="btn-gold" type="button" onclick="location.reload()">NEU LADEN</button>
             </div>
           </div>
