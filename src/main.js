@@ -82,3 +82,4 @@ if (ios && !standalone) {
 }
 
 new Game();
+window.__ascentBooted = true;

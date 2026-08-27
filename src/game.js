@@ -78,13 +78,11 @@ export class Game {
     canvas.addEventListener("webglcontextlost", (e) => {
       e.preventDefault();
       this.contextLost = true;
-      const el = document.getElementById("gl-lost");
-      if (el) el.classList.remove("hidden");
+      window.__ascentFatal?.("Grafik neu laden", "Der Grafikspeicher ist ausgegangen. Lade die Seite neu.");
     });
     canvas.addEventListener("webglcontextrestored", () => {
       this.contextLost = false;
-      const el = document.getElementById("gl-lost");
-      if (el) el.classList.add("hidden");
+      document.getElementById("fatal")?.classList.add("hidden");
       this.resize();
     });
   }
